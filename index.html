@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Year 8 Aural Skills Quiz</title>
+<style>
+  :root{
+    --bg:#eef2ff; --card:#ffffff; --ink:#1e1b4b; --muted:#64748b;
+    --accent:#6366f1; --good:#16a34a; --bad:#dc2626; --line:#c7d2fe;
+    --good-bg:rgba(22,163,74,.13); --bad-bg:rgba(220,38,38,.13);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.5;
+    min-height:100vh; display:flex; align-items:flex-start; justify-content:center;
+    padding:24px 16px;
+  }
+  .wrap{width:100%; max-width:680px}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:28px; box-shadow:0 10px 30px rgba(99,102,241,.15);
+  }
+  h1{font-size:1.5rem; margin:0 0 4px}
+  h2{font-size:1.15rem; margin:0 0 14px}
+  p.sub{color:var(--muted); margin:0 0 22px}
+  label{display:block; font-weight:600; margin:16px 0 6px}
+  input,select{
+    width:100%; padding:12px 14px; font-size:1rem; border-radius:10px;
+    border:1px solid var(--line); background:#f8fafc; color:var(--ink);
+  }
+  button{
+    font-size:1rem; font-weight:700; cursor:pointer; border:none;
+    border-radius:10px; padding:14px 20px; color:#ffffff; background:var(--accent);
+    transition:transform .05s ease, filter .15s ease;
+  }
+  button:hover{filter:brightness(1.08)}
+  button:active{transform:translateY(1px)}
+  button[disabled]{opacity:.5; cursor:not-allowed}
+  button.ghost{background:transparent; color:var(--accent); border:1px solid var(--accent)}
+  button.block{width:100%; margin-top:22px; min-height:48px}
+  .row{display:flex; gap:12px; flex-wrap:wrap}
+  .row > button{flex:1}
+  .progress{height:8px; background:#e0e7ff; border-radius:99px; overflow:hidden; margin-bottom:18px}
+  .progress > i{display:block; height:100%; background:var(--accent); width:0%; transition:width .3s ease}
+  .opts{display:grid; gap:12px; margin-top:8px}
+  .opt{
+    text-align:left; background:#f8fafc; color:var(--ink);
+    border:2px solid var(--line); padding:18px 16px; min-height:48px; border-radius:12px; font-weight:600;
+  }
+  .opt:hover{border-color:var(--accent)}
+  .opt.correct{border-color:var(--good); background:var(--good-bg)}
+  .opt.wrong{border-color:var(--bad); background:var(--bad-bg)}
+  .opt[disabled]{opacity:1}
+  .play{
+    display:inline-flex; align-items:center; gap:10px; background:var(--accent);
+    color:#ffffff; padding:16px 26px; min-height:48px; box-shadow:0 4px 14px rgba(99,102,241,.35); border-radius:99px; font-size:1.05rem;
+  }
+  .play .ico{font-size:1.2rem}
+  .feedback{margin-top:18px; padding:14px 16px; border-radius:12px; font-weight:600}
+  .feedback.ok{background:var(--good-bg); border:1px solid var(--good)}
+  .feedback.no{background:var(--bad-bg); border:1px solid var(--bad)}
+  .feedback small{display:block; font-weight:500; color:var(--ink); opacity:.78; margin-top:4px}
+  .tag{display:inline-block; font-size:.8rem; color:var(--muted); margin-bottom:10px;
+    text-transform:uppercase; letter-spacing:.06em}
+  .scoreBig{font-size:3rem; font-weight:800; margin:8px 0}
+  .band{font-size:1.2rem; font-weight:700; color:var(--accent)}
+  .meta{color:var(--muted); font-size:.9rem; margin-top:18px; word-break:break-all}
+  textarea{width:100%; min-height:160px; padding:12px; border-radius:10px;
+    border:1px solid var(--line); background:#f8fafc; color:var(--ink); font-family:monospace}
+  table{width:100%; border-collapse:collapse; margin-top:14px; font-size:.9rem}
+  th,td{border:1px solid var(--line); padding:8px; text-align:left}
+  th{background:#eef2ff}
+  .codebox{background:#f8fafc; border:1px dashed var(--accent); padding:12px;
+    border-radius:10px; font-family:monospace; word-break:break-all; margin-top:8px}
+  .hidden{display:none}
+  .footnote{color:var(--muted); font-size:.82rem; margin-top:22px; text-align:center}
+  svg.rhythm{background:#ffffff; border:1px solid var(--line); border-radius:8px; width:100%; height:104px}
+  .beatstrip{display:flex;align-items:stretch;gap:6px;margin:4px 0 10px}
+  .beatstrip .bs-cell{flex:1;display:flex;align-items:center;justify-content:center;
+    min-height:42px;border:2px solid var(--line);border-radius:10px;
+    background:#f8fafc;color:var(--ink);font-weight:700;font-size:.95rem;
+    transition:background .08s ease,color .08s ease,border-color .08s ease}
+  .beatstrip .ready-cell{flex:1.4;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;
+    border-style:dashed;color:#92600a;background:#fff7e6;border-color:#f0c66b}
+  .beatstrip .bs-sep{width:2px;background:var(--line);border-radius:2px}
+  .beatstrip .bs-cell.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .beatstrip .ready-cell.on{background:#f59e0b;color:#fff;border-color:#f59e0b}
+  .beatstrip .bs-cell.on-rest{background:#fff;color:var(--ink);
+    border-color:var(--accent);border-style:dashed}
+  .beatstrip .bs-cell.on-rest::after{content:" rest";font-size:.7rem;font-weight:700;opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="app"></div>
+  <div class="footnote">Year 8 Aural Skills Quiz · headphones recommended</div>
+</div>
+
+<script>
+/* ============================================================
+   TEACHER CONFIG  —  edit the values in this block only
+   ============================================================ */
+const CONFIG = {
+  quizId: "Y8-Aural",                       // shows in your results sheet
+  instrument: "piano",                      // "piano" | "guitar" | "synth"
+
+  // Paste the Apps Script Web App URL here (see README). Leave "" to test
+  // without a backend — students still get a code + CSV download.
+  scriptUrl: "https://script.google.com/macros/s/AKfycbxEnlrpyC2XNZA7WbRj8V_90MzhBtxkbExhdWA3efh53KUYuL4jDvB2YPnpMzM3geI7-g/exec",
+
+  classList: ["8MUS1","8MUS2","8MUS3","8MUS4","8MUS5","8MUS6","8MUS7"], // edit to match your classes
+
+  questionsPerSkill: 5,                      // 5 each x 3 skills = 15 questions
+  maxReplays: 3,                             // audio plays allowed per question
+
+  // % cut-offs -> report band + the exact sentence from your workbook.
+  bands: [
+    { min:90, name:"Outstanding",
+      report:"- displayed outstanding aural skills in a range of listening activities" },
+    { min:75, name:"Excellent",
+      report:"- displayed excellent aural skills in a range of listening activities" },
+    { min:60, name:"Strong",
+      report:"- displayed strong aural skills in a range of listening activities" },
+    { min:45, name:"Sound",
+      report:"- displayed sound aural skills in a range of listening activities" },
+    { min:0,  name:"Developing",
+      report:"- displayed developing aural skills in a range of listening activities" },
+  ],
+};
+/* ====================  END CONFIG  ========================== */
+
+
+/* ---------- Audio engine (Web Audio API, no files) ---------- */
+let AC = null;
+function audio(){ if(!AC){ AC = new (window.AudioContext||window.webkitAudioContext)(); } if(AC.state==="suspended") AC.resume(); return AC; }
+
+function tone(freq, start, dur, opt={}){
+  const ac = audio();
+  const t0 = ac.currentTime + start;
+  const peak = opt.peak ?? 0.28;
+  // Dynamics questions pass peak/gainStart/gainEnd — they MUST keep the
+  // original synth envelope so loud/soft & cresc/dim stay assessable.
+  const dyn = ("peak" in opt) || ("gainStart" in opt) || ("gainEnd" in opt);
+  const inst = dyn ? "synth" : (CONFIG.instrument || "piano");
+
+  if(inst==="guitar"){
+    // Karplus–Strong plucked string
+    const N = Math.max(2, Math.round(ac.sampleRate / freq));
+    const len = Math.ceil(ac.sampleRate * (dur + 0.1));
+    const buf = ac.createBuffer(1, len, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    const ring = new Float32Array(N);
+    for(let i=0;i<N;i++) ring[i] = Math.random()*2 - 1;
+    let idx = 0;
+    for(let i=0;i<len;i++){
+      d[i] = ring[idx];
+      ring[idx] = (ring[idx] + ring[(idx+1)%N]) * 0.5 * 0.996;
+      idx = (idx+1)%N;
+    }
+    const src = ac.createBufferSource(); src.buffer = buf;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(peak*1.15, t0 + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(g).connect(ac.destination);
+    src.start(t0); src.stop(t0 + dur + 0.1);
+    return;
+  }
+
+  if(inst==="piano"){
+    // Additive struck-string: fundamental + decaying partials
+    const parts = [[1,1],[2,0.5],[3,0.28],[4,0.16]];
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(peak, t0 + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    g.connect(ac.destination);
+    let last;
+    parts.forEach(([mult,amp])=>{
+      const o = ac.createOscillator(); o.type = "sine"; o.frequency.value = freq*mult;
+      const pg = ac.createGain(); pg.gain.value = amp;
+      o.connect(pg).connect(g);
+      o.start(t0); o.stop(t0 + dur + 0.05);
+      last = o;
+    });
+    last.addEventListener("ended", ()=>g.disconnect());
+    return;
+  }
+
+  // synth — original behaviour (and every dynamics question)
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = opt.type || "triangle";
+  osc.frequency.value = freq;
+  const a = opt.gainStart ?? peak, b = opt.gainEnd ?? peak;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(a, t0 + 0.02);
+  g.gain.linearRampToValueAtTime(b, t0 + dur - 0.04);
+  g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0); osc.stop(t0 + dur + 0.02);
+}
+// percussive click for rhythm
+function click(start, accent=false){
+  const ac = audio();
+  const t0 = ac.currentTime + start;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = "square";
+  osc.frequency.value = accent ? 1500 : 1100;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(accent?0.32:0.24, t0+0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+0.12);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0); osc.stop(t0+0.14);
+}
+
+/* ---------- Question generators ---------- */
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+const SCALE = [262,294,330,349,392,440,494,523]; // C4..C5
+
+// 1) High-Same-Low
+function qHighSameLow(){
+  const i = Math.floor(Math.random()*SCALE.length);
+  const dir = rnd(["higher","same","lower"]);
+  let j = i;
+  if(dir==="higher") j = Math.min(SCALE.length-1, i + 1 + Math.floor(Math.random()*3));
+  if(dir==="lower")  j = Math.max(0, i - (1 + Math.floor(Math.random()*3)));
+  const f1 = SCALE[i], f2 = SCALE[j];
+  return {
+    skill:"High–Same–Low",
+    prompt:"Listen to the two notes. Is the SECOND note higher, the same, or lower than the first?",
+    play(){ tone(f1,0,0.9); tone(f2,1.15,0.9); },
+    options:["Higher","Same","Lower"],
+    correct:["higher","same","lower"].indexOf(dir),
+    explain:`The second note was ${dir==="same"?"the same pitch":dir}.`,
+  };
+}
+
+// 2) Rhythm dictation — tokens per beat: q=crotchet, ee=two quavers, r=crotchet rest
+const RPATTERNS_EASY = [
+  ["q","q","ee","q"], ["ee","q","q","q"], ["q","ee","ee","q"],
+  ["q","r","q","q"], ["ee","ee","q","q"], ["q","q","q","ee"],
+  ["q","ee","q","r"], ["ee","q","ee","q"], ["q","q","ee","ee"],
+  ["ee","q","r","q"], ["q","ee","q","ee"], ["ee","ee","ee","q"]
+];
+const RPATTERNS_HARD = [
+  ["ssss","q","ee","q"], ["q","ssss","q","q"], ["ee","ess","q","q"],
+  ["q","sse","ee","q"], ["ssss","ee","q","r"], ["q","ess","sse","q"],
+  ["ee","q","ssss","q"], ["sse","q","ee","ee"], ["q","q","ess","q"],
+  ["ssss","ssss","q","q"], ["ee","ess","q","r"], ["q","sse","q","ssss"]
+];
+function rhythmSVG(tok){
+  const W=420,H=104,base=58,step=W/4, NS="http://www.w3.org/2000/svg";
+  const INK="#1e1b4b", STAFF="#c7d2fe", LABEL="#6366f1"; // light-theme palette
+  const beamY=base-34;
+  // fr = notehead x-fractions of the beat column; b1 = single primary beam across all heads;
+  // b2 = double full beam (semiquavers); sub = [a,c] head-index range getting an extra 16th beam.
+  const GROUPS={
+    q:   {fr:[0],                 b1:false, b2:false, sub:null},
+    ee:  {fr:[0,0.42],            b1:true,  b2:false, sub:null},
+    ssss:{fr:[0,0.16,0.32,0.48],  b1:true,  b2:true,  sub:null},
+    ess: {fr:[0,0.34,0.50],       b1:true,  b2:false, sub:[1,2]},
+    sse: {fr:[0,0.16,0.34],       b1:true,  b2:false, sub:[0,1]},
+  };
+  let s=`<svg class="rhythm" viewBox="0 0 ${W} ${H}" xmlns="${NS}" role="img" aria-label="rhythm notation">`;
+  s+=`<line x1="10" y1="${base}" x2="${W-10}" y2="${base}" stroke="${STAFF}"/>`;
+  tok.forEach((t,b)=>{
+    const x = 30 + b*step;
+    if(t==="r"){
+      s+=`<g transform="translate(${x-2},${base-30})" stroke="${INK}" fill="none" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,0 12,9 4,17 13,27"/><path d="M13 27 q5 4 0 9 q-3 3 -7 1"/></g>`;
+      s+=`<text x="${x-4}" y="${base+34}" fill="${LABEL}" font-size="11" font-family="-apple-system,system-ui,sans-serif">rest</text>`;
+      return;
+    }
+    const g = GROUPS[t] || GROUPS.q;
+    const hx = g.fr.map(f => x + f*step);
+    hx.forEach(cx=>{
+      s+=`<ellipse cx="${cx}" cy="${base}" rx="8" ry="6" fill="${INK}"/>`;
+      s+=`<line x1="${cx+7}" y1="${base}" x2="${cx+7}" y2="${beamY}" stroke="${INK}" stroke-width="2"/>`;
+    });
+    if(hx.length>1 && g.b1){
+      s+=`<line x1="${hx[0]+7}" y1="${beamY}" x2="${hx[hx.length-1]+7}" y2="${beamY}" stroke="${INK}" stroke-width="4"/>`;
+    }
+    if(g.b2){
+      s+=`<line x1="${hx[0]+7}" y1="${beamY+9}" x2="${hx[hx.length-1]+7}" y2="${beamY+9}" stroke="${INK}" stroke-width="4"/>`;
+    }
+    if(g.sub){
+      s+=`<line x1="${hx[g.sub[0]]+7}" y1="${beamY+9}" x2="${hx[g.sub[1]]+7}" y2="${beamY+9}" stroke="${INK}" stroke-width="4"/>`;
+    }
+  });
+  return s+`</svg>`;
+}
+const RHYTHM_WORDS = { q:"Tea", ee:"Coffee", ssss:"Coca-Cola", ess:"Strawberry", sse:"Berry-Straw", r:"(rest)" };
+function rhythmWords(tok){ return tok.map(t=>RHYTHM_WORDS[t]).join(" – "); }
+function rhythmSchedule(tok, bps){
+  const sched = [{ t:0, kind:"ready" }];
+  tok.forEach((t,b)=>{
+    const at = (b+1)*bps;
+    let clicks, rest=false;
+    if(t==="q")          clicks=[at];
+    else if(t==="ee")    clicks=[at, at+bps/2];
+    else if(t==="ssss")  clicks=[at, at+bps/4, at+bps/2, at+3*bps/4];
+    else if(t==="ess")   clicks=[at, at+bps/2, at+3*bps/4];
+    else if(t==="sse")   clicks=[at, at+bps/4, at+bps/2];
+    else { clicks=[]; rest=true; } // "r"
+    sched.push({ t:at, kind:"beat", beat:b+1, rest, clicks });
+  });
+  return sched;
+}
+function playRhythm(tok){
+  const bps = 0.7; // seconds per beat (~86 BPM)
+  const sched = rhythmSchedule(tok, bps);
+  // Audio: beat clicks only — no count-in. (First play may trail the visual
+  // by up to ~50ms while the AudioContext resumes; immaterial for 4 beats.)
+  sched.forEach(ev => { if(ev.clicks) ev.clicks.forEach(at => click(at)); });
+  // Visual: drive the beat strip from the SAME schedule, if present.
+  const strip = typeof document!=="undefined" && document.getElementById("beatStrip");
+  if(strip){
+    // Cancel in-flight timers from a previous play (students mash Play).
+    if(strip._timers) strip._timers.forEach(id=>clearTimeout(id));
+    strip._timers = [];
+    strip.querySelectorAll(".bs-cell").forEach(c=>c.classList.remove("on","on-rest"));
+    sched.forEach(ev=>{
+      const id = setTimeout(()=>{
+        const key = ev.kind==="ready" ? "ready" : String(ev.beat);
+        const cell = strip.querySelector(`[data-bs="${key}"]`);
+        if(!cell) return;
+        const cls = ev.kind==="ready" ? "on" : (ev.rest ? "on-rest" : "on");
+        cell.classList.add(cls);
+        const rid = setTimeout(()=>cell.classList.remove("on","on-rest"), bps*900); // brief off-gap before next beat
+        strip._timers.push(rid);
+      }, ev.t*1000);
+      strip._timers.push(id);
+    });
+  }
+}
+function qRhythm(tier){
+  const pool = tier==="hard" ? RPATTERNS_HARD : RPATTERNS_EASY;
+  const target = rnd(pool);
+  const others = pool.filter(p=>p.join()!==target.join());
+  if(others.length<2) throw new Error("Rhythm pool too small for 2 distractors");
+  const distractors=[]; while(distractors.length<2){ const d=rnd(others); if(!distractors.includes(d)) distractors.push(d); }
+  const opts=[target,...distractors];
+  for(let i=opts.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]]; }
+  return {
+    skill:"Rhythm Dictation",
+    tier: tier==="hard" ? "hard" : "easy",
+    prompt:"Watch the beat strip. The 'Get ready' beat is silent, then listen to the 4-beat rhythm — which notation matches?",
+    play(){ playRhythm(target); },
+    optionsHTML: opts.map(rhythmSVG),
+    correct: opts.findIndex(o=>o.join()===target.join()),
+    explain:"You heard: "+rhythmWords(target)+".",
+  };
+}
+
+// 3) Tempo & dynamics
+function qTempoDyn(){
+  const kind = rnd(["tempo","level","change"]);
+  if(kind==="tempo"){
+    const fast = Math.random()<0.5;
+    const bps = fast ? 0.34 : 0.85;
+    return {
+      skill:"Tempo & Dynamics",
+      prompt:"Listen to the steady beat. Is the tempo FAST or SLOW?",
+      play(){ for(let i=0;i<6;i++) click(i*bps, i===0); },
+      options:["Fast","Slow"],
+      correct: fast?0:1,
+      explain:`Tempo = speed of the beat. This was ${fast?"fast":"slow"}.`,
+    };
+  }
+  if(kind==="level"){
+    const loud = Math.random()<0.5;
+    const pk = loud ? 0.34 : 0.06;
+    return {
+      skill:"Tempo & Dynamics",
+      prompt:"Listen to the note. Is it LOUD or SOFT (dynamics)?",
+      play(){ tone(392,0,1.2,{peak:pk}); },
+      options:["Loud (forte)","Soft (piano)"],
+      correct: loud?0:1,
+      explain:`Dynamics = volume. This note was ${loud?"loud (forte)":"soft (piano)"}.`,
+    };
+  }
+  const up = Math.random()<0.5;
+  return {
+    skill:"Tempo & Dynamics",
+    prompt:"Listen to the note. Is it getting LOUDER or getting SOFTER?",
+    play(){ tone(392,0,2.0,{gainStart: up?0.04:0.34, gainEnd: up?0.34:0.04}); },
+    options:["Getting louder (crescendo)","Getting softer (diminuendo)"],
+    correct: up?0:1,
+    explain:`A ${up?"crescendo":"diminuendo"} means the sound gradually gets ${up?"louder":"softer"}.`,
+  };
+}
+
+function buildQuiz(){
+  const make=(gen,n)=>Array.from({length:n},gen);
+  const n=CONFIG.questionsPerSkill;
+  const easyCount=Math.ceil(n*0.6), hardCount=n-easyCount; // n>=3 → some hard; default n=5 → 3 easy / 2 hard
+  const rhythmOrdered=[
+    ...make(()=>qRhythm("easy"),easyCount),
+    ...make(()=>qRhythm("hard"),hardCount),
+  ];
+  let qs=[
+    ...make(qHighSameLow,n),
+    ...rhythmOrdered.slice(),
+    ...make(qTempoDyn,n),
+  ];
+  for(let i=qs.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [qs[i],qs[j]]=[qs[j],qs[i]]; }
+  // Re-impose easy→hard order on the Rhythm Dictation slots only.
+  const rIdx=[]; qs.forEach((q,i)=>{ if(q.skill==="Rhythm Dictation") rIdx.push(i); });
+  rIdx.forEach((idx,k)=>{ qs[idx]=rhythmOrdered[k]; });
+  return qs;
+}
+
+/* ---------- App state ---------- */
+const app = document.getElementById("app");
+let state = { name:"", cls:"", qs:[], idx:0, score:0, plays:0, answered:false,
+              perSkill:{}, answers:[] };
+
+function bandFor(pct){
+  return CONFIG.bands.find(b=>pct>=b.min) || CONFIG.bands[CONFIG.bands.length-1];
+}
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- Screens ---------- */
+function screenStart(){
+  app.innerHTML = `
+    <h1>Year 8 Aural Skills Quiz</h1>
+    <p class="sub">Put on headphones if you can. You'll hear short sounds and choose the best answer. You get instant feedback after every question.</p>
+    <p class="meta" style="margin:0 0 18px">Rhythm words — <b>Tea</b>: 1 tap · <b>Coffee</b>: 2 · <b>Coca-Cola</b>: 4 · <b>Strawberry</b>: 1+2 · <b>Berry-Straw</b>: 2+1 · <b>rest</b>: silent · <b>Oom-cha</b>: strong low “oom” on beat 1, lighter “cha” after.</p>
+    <label for="nm">Your full name</label>
+    <input id="nm" placeholder="Firstname Lastname" autocomplete="off">
+    <label for="cl">Your class</label>
+    <select id="cl">${CONFIG.classList.map(c=>`<option>${esc(c)}</option>`).join("")}</select>
+    <button class="block" id="go">Start quiz</button>
+    <div id="err" style="color:var(--bad);margin-top:10px"></div>`;
+  document.getElementById("go").onclick=()=>{
+    const nm=document.getElementById("nm").value.trim();
+    if(nm.length<2){ document.getElementById("err").textContent="Please enter your full name."; return; }
+    audio(); // unlock audio on user gesture
+    state.name=nm; state.cls=document.getElementById("cl").value;
+    state.qs=buildQuiz(); state.idx=0; state.score=0; state.answers=[];
+    state.perSkill={};
+    screenQuestion();
+  };
+}
+
+function screenQuestion(){
+  const q=state.qs[state.idx];
+  state.answered=false; state.plays=0;
+  const pct=Math.round((state.idx/state.qs.length)*100);
+  const optsHTML = q.optionsHTML
+    ? q.optionsHTML.map((h,i)=>`<button class="opt" data-i="${i}">${h}</button>`).join("")
+    : q.options.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o)}</button>`).join("");
+  app.innerHTML=`
+    <div class="tag" style="display:flex;justify-content:space-between;margin-bottom:6px">
+      <span>Question ${state.idx+1} / ${state.qs.length}</span><span>${esc(q.skill)}</span>
+    </div>
+    <div class="progress"><i style="width:${pct}%"></i></div>
+    <h2>${esc(q.prompt)}</h2>
+    <div class="row" style="margin:6px 0 4px">
+      <button class="play" id="play"><span class="ico">&#9658;</span> Play sound</button>
+    </div>
+    <div class="tag" id="playsLeft">Plays left: ${CONFIG.maxReplays}</div>
+    ${q.skill==="Rhythm Dictation" ? `<div id="beatStrip" class="beatstrip" aria-hidden="true"><div class="bs-cell ready-cell" data-bs="ready">Get ready</div><div class="bs-sep"></div><div class="bs-cell" data-bs="1">1</div><div class="bs-cell" data-bs="2">2</div><div class="bs-cell" data-bs="3">3</div><div class="bs-cell" data-bs="4">4</div></div>` : ``}
+    <div class="opts" id="opts">${optsHTML}</div>
+    <div id="fb"></div>
+    <button class="block hidden" id="next">Next</button>`;
+
+  const playBtn=document.getElementById("play");
+  const doPlay=()=>{
+    if(state.plays>=CONFIG.maxReplays) return;
+    state.plays++;
+    q.play();
+    const left=CONFIG.maxReplays-state.plays;
+    document.getElementById("playsLeft").textContent= left>0?`Plays left: ${left}`:"No plays left";
+    if(left<=0) playBtn.disabled=true;
+  };
+  playBtn.onclick=doPlay;
+  doPlay(); // auto-play once on load
+
+  document.querySelectorAll(".opt").forEach(btn=>{
+    btn.onclick=()=>answer(parseInt(btn.dataset.i,10));
+  });
+}
+
+function answer(choice){
+  if(state.answered) return;
+  state.answered=true;
+  const q=state.qs[state.idx];
+  const ok = choice===q.correct;
+  if(ok) state.score++;
+  const sk=q.skill;
+  state.perSkill[sk]=state.perSkill[sk]||{c:0,t:0};
+  state.perSkill[sk].t++; if(ok) state.perSkill[sk].c++;
+  state.answers.push({skill:sk, chosen:choice, correct:q.correct, ok});
+
+  document.querySelectorAll(".opt").forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.correct) b.classList.add("correct");
+    if(i===choice && !ok) b.classList.add("wrong");
+  });
+  const fb=document.getElementById("fb");
+  fb.className="feedback "+(ok?"ok":"no");
+  fb.innerHTML=`${ok?"&#10004; Correct!":"&#10006; Not quite."}<small>${esc(q.explain)}</small>`;
+  const next=document.getElementById("next");
+  next.classList.remove("hidden");
+  next.textContent = state.idx+1<state.qs.length ? "Next question" : "Finish & see results";
+  next.onclick=()=>{
+    state.idx++;
+    if(state.idx<state.qs.length) screenQuestion(); else screenResults();
+  };
+}
+
+function resultPayload(){
+  const total=state.qs.length;
+  const pct=Math.round((state.score/total)*100);
+  const band=bandFor(pct);
+  const per={};
+  Object.keys(state.perSkill).forEach(k=>{
+    const s=state.perSkill[k]; per[k]=`${s.c}/${s.t}`;
+  });
+  return {
+    quizId:CONFIG.quizId, name:state.name, cls:state.cls,
+    score:state.score, total, pct, band:band.name, report:band.report,
+    perSkill:per,
+    answers:state.answers.map(a=>`${a.skill}:${a.ok?1:0}`).join("|"),
+    ts:new Date().toISOString(),
+  };
+}
+
+function encodeCode(p){
+  return "AQ1-"+btoa(unescape(encodeURIComponent(JSON.stringify(p))));
+}
+function downloadCSV(p){
+  const head=["quizId","name","class","score","total","percent","band","report","perSkill","answers","timestamp"];
+  const row=[p.quizId,p.name,p.cls,p.score,p.total,p.pct,p.band,p.report,
+             JSON.stringify(p.perSkill),p.answers,p.ts]
+            .map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",");
+  const blob=new Blob([head.join(",")+"\n"+row+"\n"],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`aural_${p.name.replace(/\s+/g,"_")}_${p.cls}.csv`;
+  a.click();
+}
+async function submit(p){
+  if(!CONFIG.scriptUrl) return false;
+  try{
+    await fetch(CONFIG.scriptUrl,{
+      method:"POST", mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(p)
+    });
+    return true; // opaque response under no-cors; treat as sent
+  }catch(e){ return false; }
+}
+
+async function screenResults(){
+  const p=resultPayload();
+  const code=encodeCode(p);
+  app.innerHTML=`
+    <div class="tag">${esc(p.cls)} · ${esc(p.name)}</div>
+    <h1>Nice work!</h1>
+    <div class="scoreBig">${p.score} / ${p.total}</div>
+    <div class="band">${p.pct}%</div>
+    <p class="sub" style="margin-top:14px">Your results are being sent to your teacher.</p>
+    <div id="sendState" class="feedback ok">Submitting…</div>
+    <button class="block ghost" id="dl">Download my results (backup)</button>
+    <p class="meta">Backup code (only if your teacher asks for it):</p>
+    <div class="codebox">${code}</div>`;
+  document.getElementById("dl").onclick=()=>downloadCSV(p);
+  const sent=await submit(p);
+  const ss=document.getElementById("sendState");
+  if(sent){ ss.className="feedback ok"; ss.innerHTML="&#10004; Results sent to your teacher."; }
+  else{
+    ss.className="feedback no";
+    ss.innerHTML="&#9888; Couldn't auto-send (network/locked device).<small>Click “Download my results” and submit that file to Google Classroom, or give your teacher the backup code below.</small>";
+  }
+}
+
+/* ---------- Teacher mode: ?mode=teacher ---------- */
+function screenTeacher(){
+  app.innerHTML=`
+    <h1>Teacher · decode result codes</h1>
+    <p class="sub">Backup tool for when auto-submit was blocked. Paste one or more student
+    backup codes (one per line) and download a combined CSV. Normally your results arrive
+    automatically in your Google Sheet — this is just a safety net.</p>
+    <textarea id="codes" placeholder="AQ1-...&#10;AQ1-..."></textarea>
+    <button class="block" id="dec">Build combined CSV</button>
+    <div id="out"></div>`;
+  document.getElementById("dec").onclick=()=>{
+    const lines=document.getElementById("codes").value.split(/\s+/).filter(x=>x.startsWith("AQ1-"));
+    const rows=[];
+    for(const l of lines){
+      try{ rows.push(JSON.parse(decodeURIComponent(escape(atob(l.slice(4)))))); }catch(e){}
+    }
+    if(!rows.length){ document.getElementById("out").innerHTML=`<p class="meta">No valid codes found.</p>`; return; }
+    const head=["quizId","name","class","score","total","percent","band","report","perSkill","answers","timestamp"];
+    const csv=[head.join(",")].concat(rows.map(p=>
+      [p.quizId,p.name,p.cls,p.score,p.total,p.pct,p.band,p.report,
+       JSON.stringify(p.perSkill),p.answers,p.ts]
+      .map(v=>`"${String(v).replace(/"/g,'""')}"`).join(","))).join("\n");
+    const blob=new Blob([csv+"\n"],{type:"text/csv"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="aural_results_combined.csv"; a.click();
+    document.getElementById("out").innerHTML=
+      `<table><tr><th>Name</th><th>Class</th><th>Score</th><th>%</th><th>Band</th></tr>`+
+      rows.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.cls)}</td><td>${p.score}/${p.total}</td><td>${p.pct}</td><td>${esc(p.band)}</td></tr>`).join("")+
+      `</table>`;
+  };
+}
+
+/* ---------- Boot ---------- */
+if(new URLSearchParams(location.search).get("mode")==="teacher") screenTeacher();
+else screenStart();
+</script>
+</body>
+</html>
